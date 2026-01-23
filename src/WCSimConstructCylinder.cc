@@ -1,4 +1,3 @@
-//  -*- mode:c++; tab-width:4;  -*-
 #include "WCSimDetectorConstruction.hh"
 
 #include "G4Material.hh"
@@ -231,11 +230,11 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructCylinder()
 									 0.*deg,
 									 360.*deg);
 
-  //  G4cout << " qqqqqqqqqqqqqqqqqqqq " << " WCRadius " << WCRadius << " WCBarrel radius " << WCRadius+1.*m << " half height "  << .5*WCLength << G4endl;
+  //G4cout << " qqqqqqqqqqqqqqqqqqqq " << " WCRadius " << WCRadius << " WCBarrel radius " << WCRadius+1.*m << " half height "  << .5*WCLength << G4endl;
   
   G4LogicalVolume* logicWCBarrel = 
     new G4LogicalVolume(solidWCBarrel,
-						G4Material::GetMaterial(water),
+						G4Material::GetMaterial("WaterLayer1"),//water),
 						"WCBarrel",
 						0,0,0);
 
@@ -247,8 +246,46 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructCylinder()
 					  logicWC,
 					  false,
 					  0,
-					  checkOverlaps); 
+					  checkOverlaps);
+    
+    
+    G4Tubs* solidWaterSlice =
+      new G4Tubs("WaterSliceSolid",
+		 0.*cm, WCRadius+1.*m,
+		 WCLength/2.0,
+		 0.*deg, 360.*deg);
+	
+    G4LogicalVolume* logicWaterLayer1 =
+      new G4LogicalVolume(solidWaterSlice,
+			  G4Material::GetMaterial("WaterLayer1"),
+			  "WaterLayer1");
+	
+    new G4PVPlacement(0,
+		      G4ThreeVector(0.,0.,-WCLength/2.0),
+		      logicWaterLayer1,
+		      "WaterLayer1",
+		      logicWCBarrel,   // parent is barrel container
+		      false,
+		      0,
+		      checkOverlaps);
+	
+    G4LogicalVolume* logicWaterLayer2 =
+      new G4LogicalVolume(solidWaterSlice,
+			  G4Material::GetMaterial("WaterLayer2"),
+			  "WaterLayer2");
+	
+    new G4PVPlacement(0,
+		      G4ThreeVector(0.,0.,+WCLength/2.0),
+		      logicWaterLayer2,
+		      "WaterLayer2",
+		      logicWCBarrel,
+		      false,
+		      0,
+		      checkOverlaps);
+	
+    G4cout << "Barrel has " << logicWCBarrel->GetNoDaughters() << " daughters" << G4endl;
 
+    
   if(isODConstructed) {
     //-----------------------------------------------------
     // Cylinder wall's tyvek

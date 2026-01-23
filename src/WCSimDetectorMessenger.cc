@@ -122,6 +122,11 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   DopingConcentration->SetParameterName("DopingConcentration", false);
   DopingConcentration->AvailableForStates(G4State_PreInit, G4State_Idle);
 
+  WaterLayersAdded = new G4UIcmdWithABool("/WCSim/WaterLayersAdded", this);
+  WaterLayersAdded->SetGuidance("Set whether or not the water parameters vary as function of z in tank");
+  WaterLayersAdded->SetParameterName("WaterLayersAdded",false);
+  WaterLayersAdded->AvailableForStates(G4State_PreInit, G4State_Idle);
+
   BGOPlacement = new G4UIcmdWithABool("/WCSim/BGOPlacement", this);
   BGOPlacement->SetGuidance("Place BGO Scintillation Crystal Inside Detector");
   BGOPlacement->SetParameterName("BGOPlacement", false);
@@ -893,6 +898,10 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 	if(command == DopingConcentration) {
 		G4cout << "Setting Gadolinium doping concentration: " << newValue << "percent" << G4endl;
             WCSimDetector->AddDopedWater(DopingConcentration->GetNewDoubleValue(newValue));
+	}
+	if(command == WaterLayersAdded){
+	  G4cout << "Adding water layers with varying parameters as function of z" << G4endl;
+	  WCSimDetector->SetWaterLayersAdded(WaterLayersAdded->GetNewBoolValue(newValue));
 	}
   
   if(command == BGOPlacement) {

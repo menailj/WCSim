@@ -182,6 +182,8 @@ struct RealisticPlacementConfiguration {
 
 };
 
+G4double endcaps_gap = 508*mm;
+
 RealisticPlacementConfiguration config;
 
 G4LogicalVolume* BuildAndPlace_SinglePolyhedraTank(
@@ -194,7 +196,8 @@ G4LogicalVolume* BuildAndPlace_SinglePolyhedraTank(
   G4LogicalVolume* mother,
   G4VisAttributes* vis,
   G4LogicalVolume*& logic,
-  G4PVPlacement*& physical
+  G4PVPlacement*& physical,
+  std::string layer = ""
 )
 {
   // Helper Function to support placement of cylindrical objects
@@ -205,9 +208,19 @@ G4LogicalVolume* BuildAndPlace_SinglePolyhedraTank(
 
   // Basic polyhedra with top and bottom plane and only an outer shell
   G4double zplane[2] = {-0.5*full_length,0.5*full_length};
-  G4double rstart[2] = {start_radius,start_radius};
   G4double rend[2] = {end_radius,end_radius};
+  G4double rstart[2] = {start_radius,start_radius};
 
+  if (layer == "top"){
+	zplane[0] = zplane[0] - endcaps_gap;
+  }
+  if (layer == "bottom"){
+    zplane[1] = zplane[1] + endcaps_gap;
+  }
+  G4cout << "z start "<<zplane[0] <<" end "<<zplane[1]<<G4endl;
+  G4cout << "r start "<<rstart[0]<< " end "<<rend[0]<<G4endl;
+
+  
   // Polyhedra solid object
   G4Polyhedra* solid = new G4Polyhedra(name,
                                         0, // phi start
@@ -238,12 +251,13 @@ G4LogicalVolume* BuildAndPlace_SinglePolyhedraTank(
                           0,
                           true); 
   }
-
+  
   // Configure some drawing options to speed up QT.
   vis->SetForceLineSegmentsPerCircle(32);
   vis->SetForceWireframe(1);
   logic->SetVisAttributes(vis); 
 
+ 
   G4cout << "LOGICAL DONE --------------- " << logic << G4endl;
   return logic; 
 }
@@ -553,22 +567,149 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
     );
 
     // 8. InnerDetector
+	
     G4LogicalVolume* InnerDetectorLogic;
     G4PVPlacement* InnerDetectorPhysical;
 
     BuildAndPlace_SinglePolyhedraTank(
       "InnerDetector",
       0.0,
-      config.InnerDetectorOuterRadius,
+	  config.InnerDetectorOuterRadius,
       config.InnerDetectorBarrelLength,
       config.InnerDetectorMaterial,
-      CENTRAL_POS,
+	  CENTRAL_POS,
       BlackTyvekLogic,
       config.InnerDetectorVis,
       InnerDetectorLogic,
       InnerDetectorPhysical
-    );
+	  );
+	
+	if (WCAddWaterLayers){
+	
+	G4LogicalVolume* InnerDetectorLogicLayer1;
+    G4PVPlacement* InnerDetectorPhysicalLayer1;
+	G4ThreeVector CENTRAL_POS_LAYER1(0.0,0.0,+5*config.InnerDetectorBarrelLength/14);
+	G4ThreeVector CENTRAL_POS_LAYER2(0.0,0.0,+3*config.InnerDetectorBarrelLength/14);
+	G4ThreeVector CENTRAL_POS_LAYER3(0.0,0.0,+config.InnerDetectorBarrelLength/14);
+	G4ThreeVector CENTRAL_POS_LAYER4(0.0,0.0,0.0);
+	G4ThreeVector CENTRAL_POS_LAYER5(0.0,0.0,-config.InnerDetectorBarrelLength/14);
+	G4ThreeVector CENTRAL_POS_LAYER6(0.0,0.0,-3*config.InnerDetectorBarrelLength/14);
+	G4ThreeVector CENTRAL_POS_LAYER7(0.0,0.0,-5*config.InnerDetectorBarrelLength/14);
+		 
+	G4double radius_gap = 508*mm;
+	
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer1",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7 - endcaps_gap,
+      G4Material::GetMaterial("WaterLayer1"),
+	  CENTRAL_POS_LAYER1,
+      InnerDetectorLogic,
+	  config.InnerDetectorVis,
+	  InnerDetectorLogicLayer1,
+      InnerDetectorPhysicalLayer1,
+	  "top"
+	  );
+		
+	G4LogicalVolume* InnerDetectorLogicLayer2;
+    G4PVPlacement* InnerDetectorPhysicalLayer2;
 
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer2",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7,
+      G4Material::GetMaterial("WaterLayer2"),
+	  CENTRAL_POS_LAYER2,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer2,
+      InnerDetectorPhysicalLayer2
+	  );								  
+
+	G4LogicalVolume* InnerDetectorLogicLayer3;
+    G4PVPlacement* InnerDetectorPhysicalLayer3;
+
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer3",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7,
+      G4Material::GetMaterial("WaterLayer3"),
+	  CENTRAL_POS_LAYER3,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer3,
+      InnerDetectorPhysicalLayer3
+	  );								  
+
+	G4LogicalVolume* InnerDetectorLogicLayer4;
+    G4PVPlacement* InnerDetectorPhysicalLayer4;
+
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer4",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7,
+      G4Material::GetMaterial("WaterLayer4"),
+	  CENTRAL_POS_LAYER4,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer4,
+      InnerDetectorPhysicalLayer4
+	  );								  
+	G4LogicalVolume* InnerDetectorLogicLayer5;
+    G4PVPlacement* InnerDetectorPhysicalLayer5;
+
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer5",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7,
+      G4Material::GetMaterial("WaterLayer5"),
+	  CENTRAL_POS_LAYER5,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer5,
+      InnerDetectorPhysicalLayer5
+	  );								  
+
+	G4LogicalVolume* InnerDetectorLogicLayer6;
+    G4PVPlacement* InnerDetectorPhysicalLayer6;
+
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer6",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7,
+      G4Material::GetMaterial("WaterLayer6"),
+	  CENTRAL_POS_LAYER6,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer6,
+      InnerDetectorPhysicalLayer6
+	  );								  
+
+	G4LogicalVolume* InnerDetectorLogicLayer7;
+    G4PVPlacement* InnerDetectorPhysicalLayer7;
+
+	BuildAndPlace_SinglePolyhedraTank(
+      "InnerDetectorLayer7",
+      0.0,
+      config.InnerDetectorOuterRadius - radius_gap,
+      config.InnerDetectorBarrelLength/7 - endcaps_gap,
+      G4Material::GetMaterial("WaterLayer7"),
+	  CENTRAL_POS_LAYER7,
+      InnerDetectorLogic,
+      config.InnerDetectorVis,
+      InnerDetectorLogicLayer7,
+      InnerDetectorPhysicalLayer7,
+	  "bottom"
+	  );								  
+	}
+
+	
     // Optional inner phantom for creating a new logical away from the PMT tracking one
     // Currently the entire ID is treated as one volume. This slows tracking down
     // as every PMT needs to be intersection checked even when rays are far from the tank
@@ -939,7 +1080,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
     }
 
     int pmt20_count_barrel    = CountLogicalChildren(InnerDetectorLogic, pmt20_dummy_logic);
-    int pmtmulti_count_barrel = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
+	int pmtmulti_count_barrel = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
     int pmtod_count_barrel    = CountLogicalChildren(OuterDetectorLogic, pmtod_dummy_logic);
 
     // ------------------------
@@ -1017,14 +1158,15 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
     G4ThreeVector topcappos = G4ThreeVector(0.0,0.0,config.InnerDetectorBarrelLength/2);
     G4RotationMatrix* topcaprot = new G4RotationMatrix();
     endcap_assembly->MakeImprint( InnerDetectorLogic, topcappos, topcaprot);
-
+	
+	
     G4ThreeVector topcapposod = G4ThreeVector(0.0,0.0,config.WhiteTyvekBarrelLength/2);
     G4RotationMatrix* topcaprotod = new G4RotationMatrix();
     topcaprotod->rotateX(180*deg); // Remove this in corrected
     endcap_assembly_od->MakeImprint( OuterDetectorLogic, topcapposod, topcaprotod);
 
     int pmt20_count_barrel_and_top    = CountLogicalChildren(InnerDetectorLogic, pmt20_dummy_logic);
-    int pmtmulti_count_barrel_and_top = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
+	int pmtmulti_count_barrel_and_top = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
     int pmtod_count_barrel_and_top    = CountLogicalChildren(OuterDetectorLogic, pmtod_dummy_logic);
 
     int pmt20_count_top = pmt20_count_barrel_and_top - pmt20_count_barrel;
@@ -1037,7 +1179,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
     G4RotationMatrix* botcaprot = new G4RotationMatrix();
     botcaprot->rotateX(180*deg);
     endcap_assembly->MakeImprint( InnerDetectorLogic, botcappos, botcaprot);
-
+	
     G4ThreeVector botcapposod = G4ThreeVector(0.0,0.0,-config.WhiteTyvekBarrelLength/2);
     G4RotationMatrix* botcaprotod = new G4RotationMatrix();
     botcaprotod->rotateX(180*deg+180*deg); // Flip again for OD
@@ -1045,7 +1187,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
 
     // Do some final sumation
     int pmt20_count_total    = CountLogicalChildren(InnerDetectorLogic, pmt20_dummy_logic);
-    int pmtmulti_count_total = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
+	int pmtmulti_count_total = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
     int pmtod_count_total    = CountLogicalChildren(OuterDetectorLogic, pmtod_dummy_logic);
 
     int pmt20_count_bottom = pmt20_count_total - pmt20_count_barrel_and_top;
@@ -1124,7 +1266,8 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
 
   // Possibe the ordering?
     int ndaughters = InnerDetectorLogic->GetNoDaughters();
-    int copyno = 0;
+
+	int copyno = 0;
     std::vector<G4Transform3D> positions;
 
     // Option remove oof percantage of PMTs.
@@ -1260,7 +1403,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
     new G4LogicalSkinSurface("WallTyvekSurface",WallTyvekLogic,OpWaterTySurface);
     new G4LogicalSkinSurface("WhiteTyvekSurface",WhiteTyvekLogic,OpWaterTySurface);
     new G4LogicalSkinSurface("BlackTyvekSurface",BlackTyvekLogic,OpWaterBSSurface);
-
+	
     new G4LogicalBorderSurface("WaterBSBarrelCellSurface",
                 InnerDetectorPhysical,
                 BlackTyvekPhysical, 
@@ -1275,7 +1418,7 @@ G4LogicalVolume* WCSimDetectorConstruction::ConstructRealisticPlacement()
                 OuterDetectorPhysical,
                 WallTyvekPhysical, 
                 OpWaterTySurface);
-    
+
     int pmt20_count_final    = CountLogicalChildren(InnerDetectorLogic, pmt20_dummy_logic);
     int pmtmulti_count_final = CountLogicalChildren(InnerDetectorLogic, pmtmulti_dummy_logic);
     int pmtod_count_final    = CountLogicalChildren(OuterDetectorLogic, pmtod_dummy_logic);
