@@ -422,6 +422,8 @@ public:
   void SetDopedWater(G4bool dopedWater){WCAddGd = dopedWater; }
   void AddDopedWater(G4double percentGd = 0.1);
 
+  void SetWaterLayersAdded(G4bool waterLayers){WCAddWaterLayers = waterLayers;}
+
   std::vector<WCSimPmtInfo*>* Get_Pmts() {return &fpmts;}
   std::vector<WCSimPmtInfo*>* Get_Pmts2() {return &fpmts2;}//For the hybrid config
   std::vector<WCSimPmtInfo*>* Get_ODPmts() {return &fODpmts;}
@@ -591,6 +593,8 @@ private:
 
   G4bool WCAddGd;
 
+  G4bool WCAddWaterLayers;
+  
   // Code for traversing the geometry and assigning tubeIDs.
 
   // First make a typedef for the pointer to the member fcn.  The

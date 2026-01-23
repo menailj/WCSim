@@ -8,6 +8,7 @@
 
 # HyperK
 /WCSim/WCgeom HyperK_HybridmPMT_WithOD_Realistic
+/WCSim/WaterLayersAdded true
 
 # HyperK Outer Detector
 /WCSim/HyperKOD/PMTODRadius 3inch
