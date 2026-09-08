@@ -48,6 +48,7 @@ class WCSimDetectorMessenger: public G4UImessenger
   G4UIcmdWithADouble* SetPMTCoverage2;
   G4UIcmdWithABool* DopedWater;
   G4UIcmdWithADouble* DopingConcentration;
+  G4UIcmdWithABool* WaterLayersAdded;
   G4UIcmdWithAString* LCConfig;
   G4UIcmdWithADoubleAndUnit* waterTank_Length;
 
